@@ -1,4 +1,6 @@
 <?php
+require __DIR__ . '/../includes/session.php';
+requireAdmin();
 require __DIR__ . '/../config/db.php';
 
 $con = dbConnect();
