@@ -27,6 +27,12 @@ if (empty($movies)):
 			<h2>
 				   <a href="movie.php?id=<?php echo $movie['id']; ?>">
 				   	<?php echo htmlspecialchars($movie["title"],ENT_QUOTES, 'UTF-8');?>
+				   	<a href="../public/edit_movie.php?id=<?php echo $movie['id'];?>">Edit</a> |
+				   	<a href="../public/delete_movie.php?id=<?php echo $movie['id'];?>"
+				   		onclick="return confirm('Are you sure you want to delete this movie?');">
+				   		Delete
+
+				   	</a>
 				   </h2>
 				   <p>
 				   	Release Year:
