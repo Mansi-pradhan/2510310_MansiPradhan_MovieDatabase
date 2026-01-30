@@ -47,7 +47,6 @@ $reviewsRaw = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
 $reviewStmt = $con->prepare("SELECT user_id, rating, review, created_at FROM reviews WHERE movie_id = ? ORDER BY created_at DESC");
 $reviewStmt->execute([$movieId]);
 $reviewsRaw = $reviewStmt->fetchAll(PDO::FETCH_ASSOC);
-
 $reviews = [];
 foreach ($reviewsRaw as $r) {
     
@@ -56,6 +55,7 @@ foreach ($reviewsRaw as $r) {
     $userName = $userStmt->fetchColumn();
 
     $reviews[] = [
+        'user_id' => $r['user_id'], // <-- include this
         'name' => $userName,
         'rating' => $r['rating'],
         'review' => $r['review'],
@@ -113,14 +113,20 @@ if (isset($_SESSION['user_id'])) {
     <?php if (empty($reviews)): ?>
         <p>No Reviews yet.</p>
     <?php else: ?>
-        <?php foreach ($reviews as $r): ?>
-            <div>
-                <strong><?= htmlspecialchars($r['name']) ?></strong> — <?= $r['rating'] ?>/5
-                <p><?= nl2br(htmlspecialchars($r['review'])) ?></p>
-                <small><?= $r['created_at'] ?></small>
-                <hr>
-            </div>
-        <?php endforeach; ?>
+        <?php foreach($reviews as $r): ?>
+    <div>
+        <strong><?= htmlspecialchars($r['name']) ?></strong> — <?= $r['rating'] ?>/5
+        <p><?= nl2br(htmlspecialchars($r['review'])) ?></p>
+        <small><?= $r['created_at'] ?></small>
+
+        <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $r['user_id']): ?>
+            | <a href="edit_review.php?movie_id=<?= $movieId ?>" >Edit</a>
+            | <a href="delete_review.php?movie_id=<?= $movieId ?>"
+                 onclick="return confirm('Are you sure you want to delete your review?');">Delete</a>
+        <?php endif; ?>
+    </div>
+    <hr>
+<?php endforeach; ?>
     <?php endif; ?>
 
     <p><a href="index.php">Back to Movies</a></p>

@@ -1,24 +1,27 @@
 <?php
-session_start();
-
-function isLoggeedIn(){
-	return isset($_SESSION['user_id']);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-function isAdmin(){
-	return isset($_SESSION['role'])&& $_SESSION['role'] === 'admin';
+function isLoggedIn() {
+    return isset($_SESSION['user_id']);
 }
 
-function requireLogin(){
-	if(!isLoggeedIn()){
-		header("Location: ../public/login.php");
-		exit;
-	}
+function isAdmin() {
+    return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 }
-function requireAdmin(){
-	requireLogin();
-	if(!isAdmin()){
-		die("Access denied");
-	}
+
+function requireLogin() {
+    if (!isLoggedIn()) {
+        header("Location: ../public/login.php");
+        exit;
+    }
+}
+
+function requireAdmin() {
+    requireLogin();
+    if (!isAdmin()) {
+        die("Access denied");
+    }
 }
 ?>
