@@ -11,14 +11,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Basic validation
+
     if ($name === '' || $email === '' || $password === '') {
         $message = "All fields are required.";
     } elseif ($password !== $confirm_password) {
         $message = "Passwords do not match.";
     } else {
 
-        // Check if email already exists
+    
         $sql = "SELECT id FROM users WHERE email = ?";
         $stmt = $con->prepare($sql);
         $stmt->execute([$email]);
@@ -27,10 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "Email is already registered.";
             } else {
 
-            // Hash the password
+        
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-            // Insert new user (role = user)
+         
             $insertSql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
             $insertStmt = $con->prepare($insertSql);
             $insertStmt->execute([$name, $email, $passwordHash, 'user']);
