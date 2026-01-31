@@ -14,7 +14,9 @@ $sql = "SELECT * FROM movies WHERE id = ?";
 $stmt = $con->prepare($sql);
 $stmt->execute([$movieId]);
 $movie = $stmt->fetch(PDO::FETCH_ASSOC);
-
+$posterPath = !empty($movie['poster'])
+    ? 'uploads/posters/' . htmlspecialchars($movie['poster'])
+    : 'images/no-poster.png';
 if (!$movie) {
     die("Movie not found.");
 }
@@ -76,12 +78,22 @@ if (isset($_SESSION['user_id'])) {
     <title><?= htmlspecialchars($movie['title']) ?></title>
 </head>
 <body>
-    <h1><?= htmlspecialchars($movie['title']) ?></h1>
-    <p><strong>Release Year:</strong> <?= htmlspecialchars($movie['release_year']) ?></p>
-    <p><strong>Duration:</strong> <?= htmlspecialchars($movie['duration']) ?> minutes</p>
-    <p><strong>Cast:</strong> <?= htmlspecialchars($movie['cast_names'] ?? 'N/A') ?></p>
-    <p><strong>Genres:</strong> <?= !empty($genres) ? htmlspecialchars(implode(", ", $genres)) : 'N/A' ?></p>
-    <p><?= nl2br(htmlspecialchars($movie['description'] ?? '')) ?></p>
+    <div style="display:flex; gap:20px; align-items:flex-start;">
+    <img 
+        src="<?= $posterPath ?>"
+        alt="Movie Poster"
+        style="width:220px; border-radius:6px; object-fit:cover;"
+    >
+
+    <div>
+        <h1><?= htmlspecialchars($movie['title']) ?></h1>
+        <p><strong>Release Year:</strong> <?= htmlspecialchars($movie['release_year']) ?></p>
+        <p><strong>Duration:</strong> <?= htmlspecialchars($movie['duration']) ?> minutes</p>
+        <p><strong>Cast:</strong> <?= htmlspecialchars($movie['cast_names'] ?? 'N/A') ?></p>
+        <p><strong>Genres:</strong> <?= !empty($genres) ? htmlspecialchars(implode(", ", $genres)) : 'N/A' ?></p>
+        <p><?= nl2br(htmlspecialchars($movie['description'] ?? '')) ?></p>
+    </div>
+</div>
 
     <hr>
     <h3>Rating</h3>

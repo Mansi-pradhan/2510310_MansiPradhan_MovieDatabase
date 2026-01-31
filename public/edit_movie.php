@@ -76,12 +76,33 @@ if ($title !== '') {
                     $insertGenre->execute([$genreName]);
                     $genreId = $con->lastInsertId();
                 }
+
             
                 $insertMovieGenre = $con->prepare("INSERT INTO movie_genres (movie_id, genre_id) VALUES (?, ?)");
                 $insertMovieGenre->execute([$movieId, $genreId]);
             }
         }
+if (isset($_FILES['poster']) && $_FILES['poster']['error'] === UPLOAD_ERR_OK) {
+    $fileTmpPath = $_FILES['poster']['tmp_name'];
+    $fileName = basename($_FILES['poster']['name']);
+    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    $allowed = ['jpg','jpeg','png','gif'];
 
+    if (in_array($fileExt, $allowed)) {
+        $newFileName = uniqid('poster_') . '.' . $fileExt;
+        $destPath = __DIR__ . '/../public/uploads/posters/' . $newFileName;
+
+        if (move_uploaded_file($fileTmpPath, $destPath)) {
+            
+            $posterUpdateStmt = $con->prepare("UPDATE movies SET poster = ? WHERE id = ?");
+            $posterUpdateStmt->execute([$newFileName, $movieId]);
+        } else {
+            $message .= " Failed to upload poster.";
+        }
+    } else {
+        $message .= " Invalid poster format. Allowed: jpg, jpeg, png, gif.";
+    }
+}
         $message = "Movie updated successfully!";
         $stmt->execute([$movieId]);
         $movie = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -116,7 +137,7 @@ if ($title !== '') {
 <?php if ($message): ?>
     <p><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></p>
 <?php endif; ?>
-<form method="post">
+<form method="post" enctype="multipart/form-data">
 
     <label>Title:</label><br>
     <input type="text" name="title" value="<?= htmlspecialchars($movie['title'], ENT_QUOTES, 'UTF-8') ?>" required><br><br>
@@ -134,7 +155,14 @@ if ($title !== '') {
     <input type="number" name="duration" value="<?= htmlspecialchars($movie['duration']); ?>"><br><br>
 <label>Genres (comma-separated):</label><br>
     <input type="text" name="genres" value="<?= htmlspecialchars($genresString); ?>" placeholder="Action, Sci-Fi, Adventure"><br><br>
-
+<label>Poster:</label><br>
+<?php
+$posterPath = !empty($movie['poster'])
+    ? '../public/uploads/posters/' . htmlspecialchars($movie['poster'])
+    : '../public/images/no-poster.png';
+?>
+<img src="<?= $posterPath ?>" alt="Current Poster" style="width:150px; margin-bottom:10px; display:block; object-fit:cover; border-radius:4px;"><br>
+<input type="file" name="poster" accept="image/*"><br><br>
     <button type="submit">Update Movie</button>
 
 </form>

@@ -6,7 +6,7 @@ requireLogin();
 
 $con = dbConnect();
 
-$sql = 'SELECT id, title, release_year, created_at FROM movies ORDER BY created_at DESC';
+$sql = 'SELECT id, title, release_year, poster, created_at FROM movies ORDER BY created_at DESC';
 $stmt = $con->prepare($sql);
 $stmt->execute();
 $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -59,11 +59,21 @@ $years = $yearsStmt->fetchAll(PDO::FETCH_COLUMN);
         <p>No movies found.</p>
     <?php else: ?>
         <?php foreach ($movies as $movie): ?>
-            <article>
-                <h2>
-                    <a href="movie.php?id=<?= $movie['id'] ?>">
-                        <?= htmlspecialchars($movie['title'], ENT_QUOTES) ?>
-                    </a>
+            <article style="display:flex; gap:15px;">
+    <img 
+        src="<?= $movie['poster']
+            ? 'uploads/posters/' . htmlspecialchars($movie['poster'])
+            : 'images/no-poster.png' ?>"
+        width="100"
+        alt="Poster"
+        style="object-fit:cover; border-radius:4px;"
+    >
+
+    <div>
+        <h2>
+            <a href="movie.php?id=<?= $movie['id'] ?>">
+                <?= htmlspecialchars($movie['title'], ENT_QUOTES) ?>
+            </a>
                     <?php if (isAdmin()): ?>
                         | <a href="../public/edit_movie.php?id=<?= $movie['id'] ?>">Edit</a>
                         | <a href="../public/delete_movie.php?id=<?= $movie['id'] ?>"
