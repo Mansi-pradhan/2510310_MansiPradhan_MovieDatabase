@@ -2,11 +2,18 @@
 require __DIR__ . '/../includes/session.php';
 requireAdmin();
 require __DIR__ . '/../config/db.php';
+require __DIR__ . '/../includes/header.php';
 
 $con = dbConnect();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            die ("Invalid CSRF Token");
+        }
 
     $title = trim($_POST['title']);
     $description = trim($_POST['description']);
@@ -100,6 +107,7 @@ VALUES (?, ?, ?, ?, ?, ?)";
 <?php endif; ?>
 
 <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
     <label>Title:</label><br>
     <input type="text" name="title" required><br><br>
 

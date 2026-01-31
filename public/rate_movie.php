@@ -4,9 +4,14 @@ require __DIR__ . '/../includes/session.php';
 requireLogin();
 
 $con = dbConnect();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            die ("Invalid CSRF Token");
+        }
 
     $movie_id = isset($_POST['movie_id']) ? (int) $_POST['movie_id'] : 0;
     $user_id  = (int) $_SESSION['user_id'];
