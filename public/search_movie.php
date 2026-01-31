@@ -2,37 +2,41 @@
 require __DIR__ . '/../config/db.php';
 require __DIR__ . '/../includes/session.php';
 
+requireLogin(); 
 $con = dbConnect();
 
 $search = trim($_GET['search'] ?? '');
 $year = $_GET['year'] ?? '';
 $rating = $_GET['rating'] ?? '';
 
+
 $sql = "SELECT id, title, release_year, created_at FROM movies WHERE 1";
 $params = [];
+
 
 if ($search) {
     $sql .= " AND title LIKE ?";
     $params[] = "%$search%";
 }
 
+
 if ($year) {
     $sql .= " AND release_year = ?";
     $params[] = $year;
 }
-
 $stmt = $con->prepare($sql);
 $stmt->execute($params);
 $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
 if ($search) {
     $filtered = [];
     foreach ($movies as $movie) {
-
         $genreIdsStmt = $con->prepare("SELECT genre_id FROM movie_genres WHERE movie_id = ?");
         $genreIdsStmt->execute([$movie['id']]);
         $genreIds = $genreIdsStmt->fetchAll(PDO::FETCH_COLUMN);
-$match = false;
+
+        $match = false;
         foreach ($genreIds as $gid) {
             $gStmt = $con->prepare("SELECT name FROM genres WHERE id = ?");
             $gStmt->execute([$gid]);
@@ -42,8 +46,7 @@ $match = false;
                 break;
             }
         }
-
-
+      
         if (stripos($movie['title'], $search) !== false || $match) {
             $filtered[] = $movie;
         }
@@ -69,9 +72,8 @@ if ($rating) {
 if (empty($movies)) {
     echo "<p>No movies found.</p>";
 } else {
-    foreach ($movies as $movie) {
-        ?>
-<article>
+    foreach ($movies as $movie): ?>
+        <article>
             <h2>
                 <a href="movie.php?id=<?= $movie['id'] ?>">
                     <?= htmlspecialchars($movie['title'], ENT_QUOTES) ?>
@@ -88,7 +90,6 @@ if (empty($movies)) {
             </p>
         </article>
         <hr>
-        <?php
-    }
+    <?php endforeach;
 }
 ?>

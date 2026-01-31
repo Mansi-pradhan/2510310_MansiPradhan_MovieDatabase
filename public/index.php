@@ -1,9 +1,8 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
 require __DIR__ . '/../config/db.php';
 require __DIR__ . '/../includes/session.php'; 
+
+requireLogin(); 
 
 $con = dbConnect();
 
@@ -31,8 +30,7 @@ $years = $yearsStmt->fetchAll(PDO::FETCH_COLUMN);
     </style>
 </head>
 <body>
-
-<h1>Movies</h1>
+    <h1>Movies</h1>
 
 <?php if (isAdmin()): ?>
     <p><a href="../public/add_movie.php" class="btn">+ Add Movie</a></p>
@@ -56,7 +54,6 @@ $years = $yearsStmt->fetchAll(PDO::FETCH_COLUMN);
 </div>
 
 <hr>
-
 <div id="moviesContainer">
     <?php if (empty($movies)): ?>
         <p>No movies found.</p>
@@ -82,7 +79,6 @@ $years = $yearsStmt->fetchAll(PDO::FETCH_COLUMN);
         <?php endforeach; ?>
     <?php endif; ?>
 </div>
-
 <script>
 const searchInput = document.getElementById('searchInput');
 const yearFilter = document.getElementById('yearFilter');
@@ -96,7 +92,7 @@ async function fetchMovies() {
     if (!search && !year && !rating) return;
 
     try {
-        const response = await fetch(`search_movies.php?search=${encodeURIComponent(search)}&year=${year}&rating=${rating}`);
+        const response = await fetch(`search_movie.php?search=${encodeURIComponent(search)}&year=${year}&rating=${rating}`);
         if (!response.ok) throw new Error('Network response was not ok');
 
         const html = await response.text();
