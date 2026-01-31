@@ -1,6 +1,9 @@
 <?php
 require __DIR__ . '/../config/db.php';
-require __DIR__ . '/../includes/session.php'; 
+require __DIR__ . '/../includes/session.php';
+require __DIR__ . '/../includes/header.php';
+
+
 
 requireLogin(); 
 
@@ -15,21 +18,7 @@ $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $yearsStmt = $con->query("SELECT DISTINCT release_year FROM movies ORDER BY release_year DESC");
 $years = $yearsStmt->fetchAll(PDO::FETCH_COLUMN);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movies</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        .btn { padding: 6px 12px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; }
-        input, select { padding: 5px; margin-right: 10px; margin-bottom: 10px; }
-        article { margin-bottom: 15px; }
-        hr { border: 0; border-top: 1px solid #ccc; }
-    </style>
-</head>
-<body>
+
     <h1>Movies</h1>
 
 <?php if (isAdmin()): ?>
@@ -117,5 +106,4 @@ yearFilter.addEventListener('change', fetchMovies);
 ratingFilter.addEventListener('change', fetchMovies);
 </script>
 
-</body>
-</html>
+<?php require __DIR__ . '/../includes/footer.php'; ?>
